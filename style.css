@@ -1,0 +1,89 @@
+/* 基本スタイル（モバイルファースト） */
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #222;
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+.score-board {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.counter-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.label {
+    font-size: 24px;
+    font-weight: bold;
+    width: 30px;
+}
+
+.dots {
+    display: flex;
+    gap: 10px;
+}
+
+/* カウントの丸印 */
+.dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #555;
+}
+
+.strike-on {
+    background-color: yellow;
+}
+
+.ball-on {
+    background-color: mediumaquamarine;
+}
+
+.out-on {
+    background-color: red;
+}
+
+/* ボタンのスタイル */
+.controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* スマホでは2列 */
+    gap: 15px;
+    margin-top: 30px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.btn {
+    height: 80px;
+    /* スマホで押しやすい高さ */
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.time {
+    font-size: 30px;
+}
+
+/* PC/iPad用（メディアクエリ） */
+@media (min-width: 768px) {
+    .controls {
+        grid-template-columns: repeat(4, 1fr);
+        /* 横一列に並べる */
+    }
+}

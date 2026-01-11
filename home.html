@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ソフトボール・スコア</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="controls">
+        Time
+        <p></p>
+        <button id="btn-start" class="btn start">試合開始</button>
+        <button id="btn-reset" class="btn reser">リセット</button>
+
+        <p>開始時刻 : <span id="displayStartTime">-:-</span></p>
+        <p>経過時間 : <span id="displayElapsedTime">00:00</span> </p>
+
+    </div>
+
+    <div class="score-board">
+        <div class="counter-row">
+            <span class="label">S</span>
+            <div id="strike-dots" class="dots"></div>
+        </div>
+        <div class="counter-row">
+            <span class="label">B</span>
+            <div id="ball-dots" class="dots"></div>
+        </div>
+        <div class="counter-row">
+            <span class="label">O</span>
+            <div id="out-dots" class="dots"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-looking" class="btn l-btn">見逃し</button>
+        <button id="btn-swing" class="btn s-btn">空振り</button>
+        <button id="btn-foul" class="btn f-btn">ファール</button>
+        <button id="btn-ball" class="btn b-btn">ボール</button>
+        <!--        <button id="btn-reset" class="btn reset-btn">UNDO</button>
+    -->
+    </div>
+
+    <script src="system.js"></script>
+</body>
+
+</html>
