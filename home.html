@@ -11,10 +11,9 @@
 <body>
 
     <div class="controls">
-        Time
         <p></p>
-        <button id="btn-start" class="btn start">試合開始</button>
-        <button id="btn-reset" class="btn reser">リセット</button>
+        <button id="btn-start" class="btn">試合開始</button>
+        <button id="btn-reset" class="btn">リセット</button>
 
         <p>開始時刻 : <span id="displayStartTime">-:-</span></p>
         <p>経過時間 : <span id="displayElapsedTime">00:00</span> </p>
@@ -36,13 +35,34 @@
         </div>
     </div>
 
-    <div class="controls">
-        <button id="btn-looking" class="btn l-btn">見逃し</button>
-        <button id="btn-swing" class="btn s-btn">空振り</button>
-        <button id="btn-foul" class="btn f-btn">ファール</button>
-        <button id="btn-ball" class="btn b-btn">ボール</button>
-        <!--        <button id="btn-reset" class="btn reset-btn">UNDO</button>
-    -->
+    <div id="pitch-result" class="pitch-result">
+        <button id="BSO" class="btn">BSO</button>
+        <button id="OUT" class="btn">アウト</button>
+        <button id="HIT" class="btn">安打</button>
+    </div>
+
+    <div id="BSO" class="BSO-counts">
+        <button id="btn-looking" class="btn">見逃し</button>
+        <button id="btn-swing" class="btn">空振り</button>
+        <button id="btn-foul" class="btn">ファール</button>
+        <button id="btn-ball" class="btn">ボール</button>
+        <!-- <button id="btn-reset" class="btn reset-btn">UNDO</button>    -->
+    </div>
+
+    <div id="btn-out" class="out-detail">
+        <button id="fly-out" class="btn">フライ</button>
+        <button id="ground-out" class="btn">ゴロ</button>
+    </div>
+
+    <div id="hit-detail" class="hit-detail">
+        <button id="hit-single" class="btn">単打</button>
+        <button id="hit-double" class="btn">二塁打</button>
+        <button id="hit-triple" class="btn">三塁打</button>
+        <button id="hit-homerun" class="btn">本塁打</button>
+    </div>
+
+    <div id="return" class="Return">
+        <button id="input-return" class="btn">戻る</button>
     </div>
 
     <script src="system.js"></script>

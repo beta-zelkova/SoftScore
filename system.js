@@ -13,7 +13,7 @@ const btnBall = document.getElementById('btn-ball');
 const btnOut = document.getElementById('btn-out');
 const btnundo = document.getElementById('btn-undo');
 
-// ストライクボタンが押された時
+// 見逃しボタンが押す
 btnLooking.addEventListener('click', () => {
     strikes++;
     if (strikes >= 3) {
@@ -22,8 +22,11 @@ btnLooking.addEventListener('click', () => {
         addOut(); // 3ストライクでアウト
     }
     updateDisplay();
+    BSO_counts.classList.add('hidden');
+    pitch_result.classList.remove('hidden');
 });
 
+// 空振りボタンを押す
 btnSwing.addEventListener('click', () => {
     strikes++
     if (strikes >= 3) {
@@ -32,16 +35,22 @@ btnSwing.addEventListener('click', () => {
         addOut(); // 3ストライクでアウト
     }
     updateDisplay();
+    BSO_counts.classList.add('hidden');
+    pitch_result.classList.remove('hidden');
 })
 
+// ファールを押す
 btnFoul.addEventListener('click', () => {
     strikes++
     if (strikes >= 2) {
         strikes = 2;
     }
     updateDisplay();
+    BSO_counts.classList.add('hidden');
+    pitch_result.classList.remove('hidden');
 })
 
+// ボールを押す
 btnBall.addEventListener('click', () => {
     balls++
     if (balls >= 4) {
@@ -49,6 +58,8 @@ btnBall.addEventListener('click', () => {
         balls = 0;
     }
     updateDisplay();
+    BSO_counts.classList.add('hidden');
+    pitch_result.classList.remove('hidden');
 })
 
 // アウトを増やす共通処理
@@ -60,14 +71,57 @@ function addOut() {
         outs = 0;
     }
 }
-
-
 // 開始時刻表示する
 let str_time;//開始時刻を保管
 let timerInterval;
 
 const btnStart = document.getElementById('btn-start');
 const btnReset = document.getElementById('btn-reset');
+const btn_BSO = document.getElementById('BSO')
+const hit_result = document.getElementById('HIT');
+const btnOutMain = document.getElementById('OUT');
+const pitch_result = document.getElementById('pitch-result');
+const BSO_counts = document.querySelector('.BSO-counts');
+const hit_details = document.querySelector('.hit-detail')
+const out_detail = document.querySelector('.out-detail');
+const btnReturn = document.getElementById('return');
+
+// 初期状態で BSO-counts を隠す
+BSO_counts.classList.add('hidden');
+hit_details.classList.add('hidden');
+out_detail.classList.add('hidden');
+
+
+// "BSO"ボタンをクリックした時の処理
+btn_BSO.addEventListener('click', () => {
+    BSO_counts.classList.remove('hidden');
+    pitch_result.classList.add('hidden');
+});
+
+// アウトボタンをクリックしたときの処理
+btnOutMain.addEventListener('click', () => {
+    pitch_result.classList.add('hidden');
+    out_detail.classList.remove('hidden');
+})
+
+// 安打ボタンをクリックしたときの処理
+hit_result.addEventListener('click', () => {
+    pitch_result.classList.add('hidden');
+    hit_details.classList.remove('hidden');
+});
+
+
+// 戻るボタンを押す
+btnReturn.addEventListener('click', () => {
+        // 1. BSO-countsを表示する（hiddenを消す）
+    BSO_counts.classList.add('hidden');
+    out_detail.classList.add('hidden');
+    hit_details.classList.add('hidden');
+        // 2. pitch-resultを隠す（hiddenを足す）
+    pitch_result.classList.remove('hidden');
+    
+});
+
 
 btnStart.addEventListener('click', () => {
     str_time = new Date();
@@ -102,6 +156,8 @@ btnReset.addEventListener('click', () => {
     btnStart.textContent = "試合開始";
     clearInterval(timerInterval);
 })
+
+
 
 // 画面を更新する関数（DOM操作）
 function updateDisplay() {

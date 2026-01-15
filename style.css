@@ -56,15 +56,29 @@ body {
 }
 
 /* ボタンのスタイル */
-.controls {
+.controls,.BSO-counts, .pitch-result, .hit-detail, .out-detail{
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     /* スマホでは2列 */
     gap: 15px;
     margin-top: 30px;
     width: 100%;
     max-width: 400px;
 }
+
+
+.BSO-counts.hidden ,.pitch-result.hidden, .hit-detail.hidden,.out-detail.hidden{
+    display: none;
+}
+
+.Return {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+}
+
 
 .btn {
     height: 80px;
