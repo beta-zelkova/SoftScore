@@ -27,7 +27,7 @@ timeStart.addEventListener('click', () => {
     const hours = startTime.getHours().toString().padStart(2, '0');
     const minutes = startTime.getMinutes().toString().padStart(2, '0');
     //　試合の経過時間を分で表記
-    displayStartTime.textContent = `${hours*60+minutes}`;
+    displayStartTime.textContent = `${hours}:${minutes}`;
     // 即時更新してからタイマー開始
     updateTimer();
     timePassed = setInterval(updateTimer, 60000); // 1分ごとに更新
