@@ -3,7 +3,7 @@ let balls = 0;
 let strikes = 0;
 let outs = 0;
 let currentInning = 1;
-let isTop = true;      // true＝表、先攻
+let isTop = true;      // true＝表,false=裏
 let topScores = [0,0 ,0 ,0 ,0 ,0 ,0];    // 先攻のスコア
 let bottomScores = [0, 0, 0, 0, 0, 0,0]; // 後攻のスコア
 let runners = [0, 0, 0];// ランナー (0:なし, 1:あり) [一塁, 二塁, 三塁]
@@ -14,25 +14,25 @@ let runners = [0, 0, 0];// ランナー (0:なし, 1:あり) [一塁, 二塁, �
 
 // タイマー用
 let startTime;
-let timerInterval;
-
+let timePassed;
 // --- タイマー・全体操作 ---
-const btnStart = document.getElementById('btn-start');
-const btnReset = document.getElementById('btn-reset');
+const timeStart = document.getElementById('time-start');
+const timeReset = document.getElementById('time-reset');
 const displayStartTime = document.getElementById('displayStartTime');
 const displayElapsedTime = document.getElementById('displayElapsedTime');
 
-btnStart.addEventListener('click', () => {
+timeStart.addEventListener('click', () => {
     startTime = new Date();
     // 開始時刻の表示
     const hours = startTime.getHours().toString().padStart(2, '0');
     const minutes = startTime.getMinutes().toString().padStart(2, '0');
-    displayStartTime.textContent = `${hours}:${minutes}`;
+    //　試合の経過時間を分で表記
+    displayStartTime.textContent = `${hours*60+minutes}`;
     // 即時更新してからタイマー開始
     updateTimer();
-    timerInterval = setInterval(updateTimer, 60000); // 1分ごとに更新
-    btnStart.disabled = true;
-    btnStart.textContent = "試合中";
+    timePassed = setInterval(updateTimer, 60000); // 1分ごとに更新
+    timeStart.disabled = true;
+    timeStart.textContent = "試合中";
 });
 
 function updateTimer() {
@@ -43,18 +43,30 @@ function updateTimer() {
     displayElapsedTime.textContent = `${minutes}分`;
 }
 
-btnReset.addEventListener('click', () => {
+timeReset.addEventListener('click', () => {
     // タイマー停止
-    clearInterval(timerInterval);
+    clearInterval(timePassed);
     startTime = null;
     displayStartTime.textContent = "-:-";
     displayElapsedTime.textContent = "開始前";
-    btnStart.disabled = false;
-    btnStart.textContent = "試合開始";
-    // スコアとカウントもリセット
+    timeStart.disabled = false;
+    timeStart.textContent = "試合開始";
+    // スコアとカウントもリセットしてもよし
     // 合計の値がおかしかったので一回リセットは無し
     // resetGameData();
 });
+
+// ゲーム(登録中の試合のみ)のデータのリセット
+function resetGameData() {
+    strikes = 0; balls = 0; outs = 0;
+    currentInning = 1; isTop = true;
+    topScores = [0, 0, 0, 0, 0, 0, 0];
+    bottomScores = [0, 0, 0, 0, 0, 0, 0];
+    runners = [0, 0, 0];
+    updateDisplay();
+    updateScoreboard();
+    updateRunnerDisplay();
+}
 
 
 // ===================================
@@ -96,22 +108,6 @@ updateDisplay();
 updateScoreboard();
 updateRunnerDisplay();
 
-
-/* =========================================
-   4. タイマー機能
-   ========================================= */
-
-
-function resetGameData() {
-    strikes = 0; balls = 0; outs = 0;
-    currentInning = 1; isTop = true;
-    topScores = [0, 0, 0, 0, 0, 0, 0];
-    bottomScores = [0, 0, 0, 0, 0, 0, 0];
-    runners = [0, 0, 0];
-    updateDisplay();
-    updateScoreboard();
-    updateRunnerDisplay();
-}
 
 
 /* =========================================
