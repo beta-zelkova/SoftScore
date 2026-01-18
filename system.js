@@ -2,11 +2,19 @@
 let balls = 0;
 let strikes = 0;
 let outs = 0;
-let currentInning = 1;
-let isTop = true;      // true＝表,false=裏
-let topScores = [0,0 ,0 ,0 ,0 ,0 ,0];    // 先攻のスコア
-let bottomScores = [0, 0, 0, 0, 0, 0,0]; // 後攻のスコア
+
 let runners = [0, 0, 0];// ランナー (0:なし, 1:あり) [一塁, 二塁, 三塁]
+
+
+//=========================================
+//  初期化処理
+// ========================================= 
+// 最初に一度画面を描画する
+updateDisplay();
+updateScoreboard();
+updateRunnerDisplay();
+
+
 
 // ===================================
 // タイマーの部分
@@ -70,76 +78,94 @@ function resetGameData() {
 
 
 // ===================================
-// 結果入力の部分
+// 得点版の部分
+// ===================================
+
+let topScores    = [ 0, 0, 0, 0, 0, 0, 0];    // 先攻のスコア
+let bottomScores = [ 0, 0, 0, 0, 0, 0, 0]; // 後攻のスコア
+let topTotal = 0;
+let bottomTotal = 0;
+let currentInning = 1;
+let isTop = true;      // true＝表,false=裏
+document.getElementById('top-total').textContent = topTotal;
+document.getElementById('bottom-total').textContent = bottomTotal;
+
+function updateScoreboard() {
+    for (let i = 1; i <= 7; i++) {
+        // 先攻
+        const topCell = document.getElementById(`top-of-${i}`);
+        if (topCell) topCell.textContent = topScores[i - 1];
+
+        // 後攻
+        const bottomCell = document.getElementById(`bottom-of-${i}`);
+        if (bottomCell) bottomCell.textContent = bottomScores[i - 1];
+
+        // 現在のイニングを強調表示（CSSで .active-inning を定義しても良い）
+        if (i === currentInning) {
+            if (isTop) { topCell.style.backgroundColor = "#555"; bottomCell.style.backgroundColor = "transparent"; }
+            else { bottomCell.style.backgroundColor = "#555"; topCell.style.backgroundColor = "transparent"; }
+        } else {
+            topCell.style.backgroundColor = "transparent";
+            bottomCell.style.backgroundColor = "transparent";
+        }
+    }
+}
+
+
+// ===================================
+// BSOとランナーの部分
 // ===================================
 
 // --- 画面遷移用ボタン ---
+const areaPitchResult = document.getElementById('pitch-result'); // メインメニュー
 const btnReturn = document.getElementById('input-return');
 const btnMenuBSO = document.getElementById('BSO');
 const btnMenuOUT = document.getElementById('OUT');
 const btnMenuHIT = document.getElementById('HIT');
 
-// --- 各画面（エリア） ---
-const areaPitchResult = document.getElementById('pitch-result'); // メインメニュー
+// --- BSOボタン ---
 const areaBSO = document.getElementById('BSO-detail');           // BSO詳細
-const areaOut = document.getElementById('out-detail');           // アウト詳細
-const areaHit = document.getElementById('hit-detail');           // 安打詳細
-
-// --- 入力ボタン（BSO） ---
 const btnLooking = document.getElementById('btn-looking');
 const btnSwing = document.getElementById('btn-swing');
 const btnFoul = document.getElementById('btn-foul');
 const btnBall = document.getElementById('btn-ball');
 
-// --- 入力ボタン（OUT/HIT） ---
+// --- OUTボタン ---
+const areaOut = document.getElementById('out-detail');           // アウト詳細
 const btnFly = document.getElementById('fly-out');
 const btnGround = document.getElementById('ground-out');
+
+// --- HITボタン ---
+const areaHit = document.getElementById('hit-detail');           // 安打詳細
 const btnHitSingle = document.getElementById('hit-single');
 const btnHitDouble = document.getElementById('hit-double');
 const btnHitTriple = document.getElementById('hit-triple');
 const btnHitHomerun = document.getElementById('hit-homerun');
 
 
-/* =========================================
-   3. 初期化処理
-   ========================================= */
-// 最初に一度画面を描画する
-updateDisplay();
-updateScoreboard();
-updateRunnerDisplay();
 
-
-
-/* =========================================
-   5. 画面遷移ロジック（SPA）
-   ========================================= */
-// 共通：すべての詳細画面を隠す関数
-function hideAllDetails() {
-    areaBSO.classList.add('hidden');
-    areaOut.classList.add('hidden');
-    areaHit.classList.add('hidden');
-    areaPitchResult.classList.add('hidden');
-}
-
-// メニューボタンの操作
+// 選択肢解放 ﾀﾒﾃ ﾀﾒﾃ
+// BSO　アウト　安打　その他
 btnMenuBSO.addEventListener('click', () => {
-    hideAllDetails();
+    areaPitchResult.classList.add('hidden');
     areaBSO.classList.remove('hidden');
 });
 
 btnMenuOUT.addEventListener('click', () => {
-    hideAllDetails();
+    areaPitchResult.classList.add('hidden');
     areaOut.classList.remove('hidden');
 });
 
 btnMenuHIT.addEventListener('click', () => {
-    hideAllDetails();
+    areaPitchResult.classList.add('hidden');
     areaHit.classList.remove('hidden');
 });
 
 // 戻るボタンの操作
 btnReturn.addEventListener('click', () => {
-    hideAllDetails();
+    areaBSO.classList.add('hidden');
+    areaOut.classList.add('hidden');
+    areaHit.classList.add('hidden');
     areaPitchResult.classList.remove('hidden'); // メインメニューを表示
 });
 
@@ -151,7 +177,6 @@ btnReturn.addEventListener('click', () => {
 function addStrike() {
     strikes++;
     if (strikes >= 3) {
-        alert("三振！");
         resetCount();
         addOut();
         // 自動でアウト詳細へ遷移させたい場合はここを変える
@@ -175,7 +200,6 @@ btnFoul.addEventListener('click', () => {
 btnBall.addEventListener('click', () => {
     balls++;
     if (balls >= 4) {
-        alert("フォアボール");
         resetCount();
         // フォアボールなら自動で一塁へ
         runners[0] = 1;
@@ -209,7 +233,6 @@ btnGround.addEventListener('click', handleOut);
 function addOut() {
     outs++;
     if (outs >= 3) {
-        alert("チェンジ！");
         outs = 0;
         runners = [0, 0, 0]; // ランナー一掃
         changeInning();
@@ -221,10 +244,6 @@ function changeInning() {
     if (!isTop) {
         // 裏が終わったら次の回へ
         currentInning++;
-        if (currentInning > 7) {
-            alert("試合終了（7回完了）");
-            // 必要ならここで終了処理
-        }
     }
     isTop = !isTop; // 表裏の反転
     updateScoreboard(); // 今の回を示すために更新
@@ -293,34 +312,6 @@ function addScore(points) {
     updateScoreboard();
 }
 
-function updateScoreboard() {
-    // 1〜7回までの表示更新
-    for (let i = 1; i <= 7; i++) {
-        // 先攻
-        const tCell = document.getElementById(`t${i}`);
-        if (tCell) tCell.textContent = topScores[i - 1];
-
-        // 後攻
-        const bCell = document.getElementById(`b${i}`);
-        if (bCell) bCell.textContent = bottomScores[i - 1];
-
-        // 現在のイニングを強調表示（CSSで .active-inning を定義しても良い）
-        if (i === currentInning) {
-            if (isTop) { tCell.style.backgroundColor = "#555"; bCell.style.backgroundColor = "transparent"; }
-            else { bCell.style.backgroundColor = "#555"; tCell.style.backgroundColor = "transparent"; }
-        } else {
-            tCell.style.backgroundColor = "transparent";
-            bCell.style.backgroundColor = "transparent";
-        }
-    }
-
-    // 合計得点（reduceで合計を計算）
-    const tTotal = topScores.reduce((sum, score) => sum + score, 0);
-    const bTotal = bottomScores.reduce((sum, score) => sum + score, 0);
-
-    document.getElementById('top-total').textContent = tTotal;
-    document.getElementById('bottom-total').textContent = bTotal;
-}
 
 
 /* =========================================
