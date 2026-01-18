@@ -1,181 +1,347 @@
-// データの状態（State）
-let strikes = 0;
+// 関数の定義
 let balls = 0;
+let strikes = 0;
 let outs = 0;
-let inning = 0;
-let side = 1;
+let currentInning = 1;
+let isTop = true;      // true＝表、先攻
+let topScores = [0,0 ,0 ,0 ,0 ,0 ,0];    // 先攻のスコア
+let bottomScores = [0, 0, 0, 0, 0, 0,0]; // 後攻のスコア
+let runners = [0, 0, 0];// ランナー (0:なし, 1:あり) [一塁, 二塁, 三塁]
 
-// ボタン要素の取得
+// ===================================
+// タイマーの部分
+// ===================================
+
+// タイマー用
+let startTime;
+let timerInterval;
+
+// --- タイマー・全体操作 ---
+const btnStart = document.getElementById('btn-start');
+const btnReset = document.getElementById('btn-reset');
+const displayStartTime = document.getElementById('displayStartTime');
+const displayElapsedTime = document.getElementById('displayElapsedTime');
+
+btnStart.addEventListener('click', () => {
+    startTime = new Date();
+    // 開始時刻の表示
+    const hours = startTime.getHours().toString().padStart(2, '0');
+    const minutes = startTime.getMinutes().toString().padStart(2, '0');
+    displayStartTime.textContent = `${hours}:${minutes}`;
+    // 即時更新してからタイマー開始
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 60000); // 1分ごとに更新
+    btnStart.disabled = true;
+    btnStart.textContent = "試合中";
+});
+
+function updateTimer() {
+    if (!startTime) return;
+    const now = new Date();
+    const diff = now - startTime;
+    const minutes = Math.floor(diff / (1000 * 60)); // 分のみ計算
+    displayElapsedTime.textContent = `${minutes}分`;
+}
+
+btnReset.addEventListener('click', () => {
+    // タイマー停止
+    clearInterval(timerInterval);
+    startTime = null;
+    displayStartTime.textContent = "-:-";
+    displayElapsedTime.textContent = "開始前";
+    btnStart.disabled = false;
+    btnStart.textContent = "試合開始";
+    // スコアとカウントもリセット
+    // 合計の値がおかしかったので一回リセットは無し
+    // resetGameData();
+});
+
+
+// ===================================
+// 結果入力の部分
+// ===================================
+
+// --- 画面遷移用ボタン ---
+const btnReturn = document.getElementById('input-return');
+const btnMenuBSO = document.getElementById('BSO');
+const btnMenuOUT = document.getElementById('OUT');
+const btnMenuHIT = document.getElementById('HIT');
+
+// --- 各画面（エリア） ---
+const areaPitchResult = document.getElementById('pitch-result'); // メインメニュー
+const areaBSO = document.getElementById('BSO-detail');           // BSO詳細
+const areaOut = document.getElementById('out-detail');           // アウト詳細
+const areaHit = document.getElementById('hit-detail');           // 安打詳細
+
+// --- 入力ボタン（BSO） ---
 const btnLooking = document.getElementById('btn-looking');
 const btnSwing = document.getElementById('btn-swing');
 const btnFoul = document.getElementById('btn-foul');
 const btnBall = document.getElementById('btn-ball');
-const btnOut = document.getElementById('btn-out');
-const btnundo = document.getElementById('btn-undo');
 
-// 見逃しボタンが押す
-btnLooking.addEventListener('click', () => {
-    strikes++;
-    if (strikes >= 3) {
-        strikes = 0;
-        balls = 0;
-        addOut(); // 3ストライクでアウト
-    }
+// --- 入力ボタン（OUT/HIT） ---
+const btnFly = document.getElementById('fly-out');
+const btnGround = document.getElementById('ground-out');
+const btnHitSingle = document.getElementById('hit-single');
+const btnHitDouble = document.getElementById('hit-double');
+const btnHitTriple = document.getElementById('hit-triple');
+const btnHitHomerun = document.getElementById('hit-homerun');
+
+
+/* =========================================
+   3. 初期化処理
+   ========================================= */
+// 最初に一度画面を描画する
+updateDisplay();
+updateScoreboard();
+updateRunnerDisplay();
+
+
+/* =========================================
+   4. タイマー機能
+   ========================================= */
+
+
+function resetGameData() {
+    strikes = 0; balls = 0; outs = 0;
+    currentInning = 1; isTop = true;
+    topScores = [0, 0, 0, 0, 0, 0, 0];
+    bottomScores = [0, 0, 0, 0, 0, 0, 0];
+    runners = [0, 0, 0];
     updateDisplay();
-    BSO_counts.classList.add('hidden');
-    pitch_result.classList.remove('hidden');
+    updateScoreboard();
+    updateRunnerDisplay();
+}
+
+
+/* =========================================
+   5. 画面遷移ロジック（SPA）
+   ========================================= */
+// 共通：すべての詳細画面を隠す関数
+function hideAllDetails() {
+    areaBSO.classList.add('hidden');
+    areaOut.classList.add('hidden');
+    areaHit.classList.add('hidden');
+    areaPitchResult.classList.add('hidden');
+}
+
+// メニューボタンの操作
+btnMenuBSO.addEventListener('click', () => {
+    hideAllDetails();
+    areaBSO.classList.remove('hidden');
 });
 
-// 空振りボタンを押す
-btnSwing.addEventListener('click', () => {
-    strikes++
+btnMenuOUT.addEventListener('click', () => {
+    hideAllDetails();
+    areaOut.classList.remove('hidden');
+});
+
+btnMenuHIT.addEventListener('click', () => {
+    hideAllDetails();
+    areaHit.classList.remove('hidden');
+});
+
+// 戻るボタンの操作
+btnReturn.addEventListener('click', () => {
+    hideAllDetails();
+    areaPitchResult.classList.remove('hidden'); // メインメニューを表示
+});
+
+
+/* =========================================
+   6. カウント操作ロジック
+   ========================================= */
+// ストライク処理（見逃し・空振り共通）
+function addStrike() {
+    strikes++;
     if (strikes >= 3) {
-        strikes = 0;
-        balls = 0;
-        addOut(); // 3ストライクでアウト
+        alert("三振！");
+        resetCount();
+        addOut();
+        // 自動でアウト詳細へ遷移させたい場合はここを変える
+        // hideAllDetails(); areaOut.classList.remove('hidden');
     }
     updateDisplay();
-    BSO_counts.classList.add('hidden');
-    pitch_result.classList.remove('hidden');
-})
+}
 
-// ファールを押す
+btnLooking.addEventListener('click', addStrike);
+btnSwing.addEventListener('click', addStrike);
+
+// ファール処理
 btnFoul.addEventListener('click', () => {
-    strikes++
-    if (strikes >= 2) {
-        strikes = 2;
+    if (strikes < 2) {
+        strikes++;
     }
     updateDisplay();
-    BSO_counts.classList.add('hidden');
-    pitch_result.classList.remove('hidden');
-})
+});
 
-// ボールを押す
+// ボール処理
 btnBall.addEventListener('click', () => {
-    balls++
+    balls++;
     if (balls >= 4) {
-        strikes = 0;
-        balls = 0;
+        alert("フォアボール");
+        resetCount();
+        // フォアボールなら自動で一塁へ
+        runners[0] = 1;
+        updateRunnerDisplay();
     }
     updateDisplay();
-    BSO_counts.classList.add('hidden');
-    pitch_result.classList.remove('hidden');
-})
+});
 
-// アウトを増やす共通処理
+// カウントリセット（打席完了時など）
+function resetCount() {
+    strikes = 0;
+    balls = 0;
+}
+
+
+/* =========================================
+   7. アウト・得点・イニング処理
+   ========================================= */
+// アウトボタン（フライ・ゴロ）
+function handleOut() {
+    addOut();
+    resetCount();
+    updateDisplay();
+    // メインメニューに戻る
+    btnReturn.click();
+}
+btnFly.addEventListener('click', handleOut);
+btnGround.addEventListener('click', handleOut);
+
+// アウト追加とチェンジ判定
 function addOut() {
     outs++;
     if (outs >= 3) {
-        strikes = 0;
-        balls = 0;
+        alert("チェンジ！");
         outs = 0;
+        runners = [0, 0, 0]; // ランナー一掃
+        changeInning();
     }
 }
-// 開始時刻表示する
-let str_time;//開始時刻を保管
-let timerInterval;
 
-const btnStart = document.getElementById('btn-start');
-const btnReset = document.getElementById('btn-reset');
-const btn_BSO = document.getElementById('BSO')
-const hit_result = document.getElementById('HIT');
-const btnOutMain = document.getElementById('OUT');
-const pitch_result = document.getElementById('pitch-result');
-const BSO_counts = document.querySelector('.BSO-counts');
-const hit_details = document.querySelector('.hit-detail')
-const out_detail = document.querySelector('.out-detail');
-const btnReturn = document.getElementById('return');
-
-// 初期状態で BSO-counts を隠す
-BSO_counts.classList.add('hidden');
-hit_details.classList.add('hidden');
-out_detail.classList.add('hidden');
-
-
-// "BSO"ボタンをクリックした時の処理
-btn_BSO.addEventListener('click', () => {
-    BSO_counts.classList.remove('hidden');
-    pitch_result.classList.add('hidden');
-});
-
-// アウトボタンをクリックしたときの処理
-btnOutMain.addEventListener('click', () => {
-    pitch_result.classList.add('hidden');
-    out_detail.classList.remove('hidden');
-})
-
-// 安打ボタンをクリックしたときの処理
-hit_result.addEventListener('click', () => {
-    pitch_result.classList.add('hidden');
-    hit_details.classList.remove('hidden');
-});
-
-
-// 戻るボタンを押す
-btnReturn.addEventListener('click', () => {
-        // 1. BSO-countsを表示する（hiddenを消す）
-    BSO_counts.classList.add('hidden');
-    out_detail.classList.add('hidden');
-    hit_details.classList.add('hidden');
-        // 2. pitch-resultを隠す（hiddenを足す）
-    pitch_result.classList.remove('hidden');
-    
-});
-
-
-btnStart.addEventListener('click', () => {
-    str_time = new Date();
-
-    const hours = str_time.getHours().toString().padStart(2, '0');
-    const minutes = str_time.getMinutes().toString().padStart(2, '0');
-    displayStartTime.textContent = `${hours}:${minutes}`;
-
-    updateTimer();
-    timerInterval = setInterval(updateTimer, 60000);
-
-    btnStart.disabled = true;
-    btnStart.textContent = "試合中";
-})
-
-function updateTimer() {
-    const now = new Date();
-    const diff = now - str_time; // ミリ秒単位の差分
-
-    const totalSeconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-
-    const displayM = minutes.toString().padStart(2, '0');
-    displayElapsedTime.textContent = `${displayM}分`;
+// イニング切り替え
+function changeInning() {
+    if (!isTop) {
+        // 裏が終わったら次の回へ
+        currentInning++;
+        if (currentInning > 7) {
+            alert("試合終了（7回完了）");
+            // 必要ならここで終了処理
+        }
+    }
+    isTop = !isTop; // 表裏の反転
+    updateScoreboard(); // 今の回を示すために更新
+    updateRunnerDisplay();
 }
 
-btnReset.addEventListener('click', () => {
-    displayStartTime.textContent = `-:-`;
-    displayElapsedTime.textContent = `00:00`;
 
-    btnStart.disabled = false;
-    btnStart.textContent = "試合開始";
-    clearInterval(timerInterval);
-})
+/* =========================================
+   8. 安打・ランナー処理
+   ========================================= */
+// 安打ボタン（簡易版：カウントリセットしてランナーを置く）
+btnHitSingle.addEventListener('click', () => {
+    resetCount();
+    runners[0] = 1; // 一塁にランナー
+    updateDisplay();
+    updateRunnerDisplay();
+    btnReturn.click();
+});
+// 他の安打ボタンも同様（必要なら自動進塁ロジックを追加可能）
+btnHitDouble.addEventListener('click', () => { resetCount(); runners[1] = 1; updateDisplay(); updateRunnerDisplay(); btnReturn.click(); });
+btnHitTriple.addEventListener('click', () => { resetCount(); runners[2] = 1; updateDisplay(); updateRunnerDisplay(); btnReturn.click(); });
+btnHitHomerun.addEventListener('click', () => {
+    resetCount();
+    addScore(1 + runners.filter(r => r === 1).length); // ランナー分+1点を加算
+    runners = [0, 0, 0]; // ランナー一掃
+    updateDisplay();
+    updateRunnerDisplay();
+    btnReturn.click();
+});
 
 
+// --- ランナーの手動操作（ベースクリック） ---
+// 1塁
+document.getElementById('base-1').addEventListener('click', () => {
+    runners[0] = runners[0] === 0 ? 1 : 0;
+    updateRunnerDisplay();
+});
+// 2塁
+document.getElementById('base-2').addEventListener('click', () => {
+    runners[1] = runners[1] === 0 ? 1 : 0;
+    updateRunnerDisplay();
+});
+// 3塁
+document.getElementById('base-3').addEventListener('click', () => {
+    runners[2] = runners[2] === 0 ? 1 : 0;
+    updateRunnerDisplay();
+});
 
-// 画面を更新する関数（DOM操作）
+// ランナー表示の更新
+function updateRunnerDisplay() {
+    document.getElementById('base-1').classList.toggle('runner-on', runners[0] === 1);
+    document.getElementById('base-2').classList.toggle('runner-on', runners[1] === 1);
+    document.getElementById('base-3').classList.toggle('runner-on', runners[2] === 1);
+}
+
+
+/* =========================================
+   9. スコアボード更新処理
+   ========================================= */
+function addScore(points) {
+    if (isTop) {
+        topScores[currentInning - 1] += points;
+    } else {
+        bottomScores[currentInning - 1] += points;
+    }
+    updateScoreboard();
+}
+
+function updateScoreboard() {
+    // 1〜7回までの表示更新
+    for (let i = 1; i <= 7; i++) {
+        // 先攻
+        const tCell = document.getElementById(`t${i}`);
+        if (tCell) tCell.textContent = topScores[i - 1];
+
+        // 後攻
+        const bCell = document.getElementById(`b${i}`);
+        if (bCell) bCell.textContent = bottomScores[i - 1];
+
+        // 現在のイニングを強調表示（CSSで .active-inning を定義しても良い）
+        if (i === currentInning) {
+            if (isTop) { tCell.style.backgroundColor = "#555"; bCell.style.backgroundColor = "transparent"; }
+            else { bCell.style.backgroundColor = "#555"; tCell.style.backgroundColor = "transparent"; }
+        } else {
+            tCell.style.backgroundColor = "transparent";
+            bCell.style.backgroundColor = "transparent";
+        }
+    }
+
+    // 合計得点（reduceで合計を計算）
+    const tTotal = topScores.reduce((sum, score) => sum + score, 0);
+    const bTotal = bottomScores.reduce((sum, score) => sum + score, 0);
+
+    document.getElementById('top-total').textContent = tTotal;
+    document.getElementById('bottom-total').textContent = bTotal;
+}
+
+
+/* =========================================
+   10. 描画ヘルパー関数
+   ========================================= */
 function updateDisplay() {
     renderDots('strike-dots', strikes, 'strike-on');
     renderDots('ball-dots', balls, 'ball-on');
     renderDots('out-dots', outs, 'out-on');
 }
 
-// 丸印を描画する補助関数
 function renderDots(containerId, count, activeClass) {
     const container = document.getElementById(containerId);
-    container.innerHTML = ''; // 一旦クリア
+    container.innerHTML = '';
     for (let i = 0; i < count; i++) {
         const span = document.createElement('span');
         span.classList.add('dot', activeClass);
         container.appendChild(span);
     }
 }
-
-// 初期表示
-updateDisplay();

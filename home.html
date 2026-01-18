@@ -11,27 +11,81 @@
 <body>
 
     <div class="controls">
-        <p></p>
         <button id="btn-start" class="btn">試合開始</button>
         <button id="btn-reset" class="btn">リセット</button>
+        <div class="time-info">
+            <p>開始時刻 : <span id="displayStartTime">-:-</span></p>
+            <p>経過時間 : <span id="displayElapsedTime">開始前</span></p>
+        </div>
+    </div>
 
-        <p>開始時刻 : <span id="displayStartTime">-:-</span></p>
-        <p>経過時間 : <span id="displayElapsedTime">00:00</span> </p>
-
+    <div class="scoreboard-container">
+        <table class="score-table">
+            <thead>
+                <tr>
+                    <th>TEAM</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th class="total">R</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="top-team-row">
+                    <td class="team-name">先攻</td>
+                    <td id="t1">-</td>
+                    <td id="t2">-</td>
+                    <td id="t3">-</td>
+                    <td id="t4">-</td>
+                    <td id="t5">-</td>
+                    <td id="t6">-</td>
+                    <td id="t7">-</td>
+                    <td id="top-total" class="total">0</td>
+                </tr>
+                <tr id="bottom-team-row">
+                    <td class="team-name">後攻</td>
+                    <td id="b1">-</td>
+                    <td id="b2">-</td>
+                    <td id="b3">-</td>
+                    <td id="b4">-</td>
+                    <td id="b5">-</td>
+                    <td id="b6">-</td>
+                    <td id="b7">-</td>
+                    <td id="bottom-total" class="total">0</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <div class="score-board">
-        <div class="counter-row">
-            <span class="label">S</span>
-            <div id="strike-dots" class="dots"></div>
-        </div>
-        <div class="counter-row">
-            <span class="label">B</span>
-            <div id="ball-dots" class="dots"></div>
-        </div>
-        <div class="counter-row">
-            <span class="label">O</span>
-            <div id="out-dots" class="dots"></div>
+        <div class="status-container">
+            <div class="bso-area">
+                <div class="counter-row">
+                    <span class="label">B</span>
+                    <div id="ball-dots" class="dots"></div>
+                </div>
+                <div class="counter-row">
+                    <span class="label">S</span>
+                    <div id="strike-dots" class="dots"></div>
+                </div>
+                <div class="counter-row">
+                    <span class="label">O</span>
+                    <div id="out-dots" class="dots"></div>
+                </div>
+            </div>
+
+            <div class="runner-area">
+                <div class="diamond">
+                    <div id="base-2" class="base second"></div>
+                    <div id="base-3" class="base third"></div>
+                    <div id="base-1" class="base first"></div>
+                    <div class="base-home-mark"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -39,29 +93,29 @@
         <button id="BSO" class="btn">BSO</button>
         <button id="OUT" class="btn">アウト</button>
         <button id="HIT" class="btn">安打</button>
+        <button id="btn-other" class="btn">進塁他</button>
     </div>
 
-    <div id="BSO" class="BSO-counts">
+    <div id="BSO-detail" class="BSO-counts hidden">
         <button id="btn-looking" class="btn">見逃し</button>
         <button id="btn-swing" class="btn">空振り</button>
         <button id="btn-foul" class="btn">ファール</button>
         <button id="btn-ball" class="btn">ボール</button>
-        <!-- <button id="btn-reset" class="btn reset-btn">UNDO</button>    -->
     </div>
 
-    <div id="btn-out" class="out-detail">
+    <div id="out-detail" class="out-detail hidden">
         <button id="fly-out" class="btn">フライ</button>
         <button id="ground-out" class="btn">ゴロ</button>
     </div>
 
-    <div id="hit-detail" class="hit-detail">
+    <div id="hit-detail" class="hit-detail hidden">
         <button id="hit-single" class="btn">単打</button>
         <button id="hit-double" class="btn">二塁打</button>
         <button id="hit-triple" class="btn">三塁打</button>
         <button id="hit-homerun" class="btn">本塁打</button>
     </div>
 
-    <div id="return" class="Return">
+    <div class="Return">
         <button id="input-return" class="btn">戻る</button>
     </div>
 

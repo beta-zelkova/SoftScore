@@ -1,4 +1,4 @@
-/* 基本スタイル（モバイルファースト） */
+/* 基本スタイル */
 body {
     font-family: sans-serif;
     display: flex;
@@ -10,18 +10,60 @@ body {
     padding: 20px;
 }
 
+/* スコアボード（イニング得点表） */
+.scoreboard-container {
+    width: 100%;
+    max-width: 450px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.score-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #333;
+    text-align: center;
+    font-size: 14px;
+}
+
+.score-table th,
+.score-table td {
+    border: 1px solid #555;
+    padding: 8px 4px;
+}
+
+.total {
+    background-color: #444;
+    color: #ffeb3b;
+    font-weight: bold;
+}
+
+/* BSOとランナーの横並びエリア */
 .score-board {
     background-color: #333;
-    padding: 20px;
+    padding: 15px;
     border-radius: 10px;
     width: 100%;
     max-width: 400px;
 }
 
+.status-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+/* BSOエリア：ここを固定することでレイアウトを安定させる */
+.bso-area {
+    flex: 0 0 180px;
+    /* BSOエリアの幅を固定 */
+}
+
 .counter-row {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .label {
@@ -30,15 +72,19 @@ body {
     width: 30px;
 }
 
+/* ドットの枠：ここが変動しても幅を維持する */
 .dots {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    width: 120px;
+    /* 丸印3個分を確保 */
+    height: 30px;
+    align-items: center;
 }
 
-/* カウントの丸印 */
 .dot {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     border: 2px solid #555;
 }
@@ -55,49 +101,88 @@ body {
     background-color: red;
 }
 
-/* ボタンのスタイル */
-.controls,.BSO-counts, .pitch-result, .hit-detail, .out-detail{
+/* ランナー表示（ダイヤモンド） */
+.runner-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+}
+
+.diamond {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    transform: rotate(45deg);
+    border: 1px dashed #666;
+}
+
+.base {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: transparent;
+    border: 2px solid #ccc;
+}
+
+/* 回転しているため座標指定に注意 */
+.first {
+    bottom: 0;
+    right: 0;
+}
+
+.second {
+    top: 0;
+    right: 0;
+}
+
+.third {
+    top: 0;
+    left: 0;
+}
+
+.runner-on {
+    background-color: #ffeb3b !important;
+    border-color: #ffeb3b;
+}
+
+/* 各種ボタンと非表示設定 */
+.controls,
+.pitch-result,
+.BSO-counts,
+.hit-detail,
+.out-detail {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* スマホでは2列 */
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
-    margin-top: 30px;
+    margin-top: 20px;
     width: 100%;
     max-width: 400px;
 }
 
+.hidden {
+    display: none !important;
+}
 
-.BSO-counts.hidden ,.pitch-result.hidden, .hit-detail.hidden,.out-detail.hidden{
-    display: none;
+.btn {
+    height: 60px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #eee;
 }
 
 .Return {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-top: 30px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px;
 }
 
-
-.btn {
-    height: 80px;
-    /* スマホで押しやすい高さ */
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-}
-
-.time {
-    font-size: 30px;
-}
-
-/* PC/iPad用（メディアクエリ） */
-@media (min-width: 768px) {
-    .controls {
-        grid-template-columns: repeat(4, 1fr);
-        /* 横一列に並べる */
-    }
+#input-return {
+    width: 100%;
+    background-color: #555;
+    color: white;
 }
